@@ -7,3 +7,4 @@ export interface Concert {
   price: number;
   image: string;
 }
+
