@@ -1,11 +1,15 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 
 import SeatGrid from "../components/booking/SeatGrid";
 import BookingSummary from "../components/booking/BookingSummary";
 
 import { useSeats } from "../hooks/useSeats";
 import { useConcert } from "../hooks/useConcert";
+import { useAuth } from "../hooks/useAuth";
+
+import { createBooking } from "../services/bookingService";
 
 import type { Seat } from "../types/seat";
 
@@ -18,11 +22,82 @@ export default function Booking() {
 
   const { seats, loading, error } = useSeats(concertId);
   const { concert } = useConcert(concertId);
+  const { userId } = useAuth();
+
+  const [creatingBooking, setCreatingBooking] = useState(false);
 
   const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
+  const handleContinue = async () => {
+    if (!concert) {
+      toast.error("Concert not found.");
+      return;
+    }
+
+    if (!userId) {
+      toast.error("Please login again.");
+      return;
+    }
+
+    if (selectedSeats.length === 0) {
+      toast.error("Please select at least one seat.");
+      return;
+    }
+
+    try {
+      setCreatingBooking(true);
+
+      const bookingIds: number[] = [];
+
+      for (const seat of selectedSeats) {
+        const booking = await createBooking({
+          user: {
+            id: userId,
+          },
+
+          concert: {
+            id: concert.id,
+          },
+
+          seat: {
+            id: seat.id,
+          },
+
+          status: "BOOKED",
+        });
+
+        bookingIds.push(booking.id);
+      }
+
+      toast.success("Booking created successfully!");
+
+      navigate("/payment", {
+        state: {
+          concert,
+          selectedSeats,
+          bookingIds,
+          total,
+        },
+      });
+    } catch (error: any) {
+      console.error(error);
+
+      toast.error(
+        error?.response?.data?.message ??
+          "Unable to create booking."
+      );
+    } finally {
+      setCreatingBooking(false);
+    }
+  };
+
+  
 
   const toggleSeat = (seat: Seat) => {
+    console.log("Seat clicked:", seat);
+
     setSelectedSeats((prev) => {
+      console.log("Previous:", prev);
+
       const exists = prev.find((s) => s.id === seat.id);
 
       if (exists) {
@@ -180,23 +255,13 @@ export default function Booking() {
 
           <div>
 
-            <BookingSummary seats={selectedSeats} />
+            <BookingSummary
+              seats={selectedSeats}
+              onContinue={handleContinue}
+              loading={creatingBooking}
+            />
 
-            <button
-              disabled={selectedSeats.length === 0}
-              onClick={() =>
-                navigate("/payment", {
-                  state: {
-                    concert,
-                    selectedSeats,
-                    total,
-                  },
-                })
-              }
-              className="mt-6 w-full rounded-xl bg-purple-600 py-4 text-lg font-semibold transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Continue to Payment →
-            </button>
+            
 
           </div>
 

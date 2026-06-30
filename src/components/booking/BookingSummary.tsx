@@ -2,9 +2,15 @@ import type { Seat } from "../../types/seat";
 
 interface Props {
   seats: Seat[];
+  onContinue: () => void;
+  loading?: boolean;
 }
 
-export default function BookingSummary({ seats }: Props) {
+export default function BookingSummary({
+    seats,
+    onContinue,
+    loading = false,
+    }: Props) { 
   const subtotal = seats.reduce((sum, seat) => sum + seat.price, 0);
 
   const bookingFee = seats.length > 0 ? 150 : 0;
@@ -110,6 +116,15 @@ export default function BookingSummary({ seats }: Props) {
             </span>
 
           </div>
+          <button
+            disabled={seats.length === 0 || loading}
+            onClick={onContinue}
+            className="mt-8 w-full rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 py-4 text-lg font-semibold transition hover:from-purple-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+            {loading
+                ? "Creating Booking..."
+                : "Continue to Payment →"}
+          </button>
         </>
       )}
     </div>

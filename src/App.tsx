@@ -7,6 +7,8 @@ import Booking from "./pages/Booking";
 import ConcertDetails from "./pages/ConcertDetails";
 import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
+import Payment from "./pages/Payment";
+import BookingSuccess from "./pages/BookingSuccess";
 
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
@@ -24,6 +26,24 @@ function App() {
         element={
           <ProtectedRoute>
             <Booking />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/payment"
+        element={
+          <ProtectedRoute>
+            <Payment />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/booking-success"
+        element={
+          <ProtectedRoute>
+            <BookingSuccess />
           </ProtectedRoute>
         }
       />
