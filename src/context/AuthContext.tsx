@@ -1,10 +1,25 @@
-import { createContext, useEffect, useState, ReactNode } from "react";
-import { getToken, saveToken, logout as logoutService } from "../services/authService";
+import { createContext, useEffect, useState } from "react";
+import type { ReactNode } from "react";
+
+import type { AuthResponse } from "../types/auth";
+
+import {
+  getToken,
+  getUserId,
+  getUserName,
+  getRole,
+  saveAuth,
+  logout as logoutService,
+} from "../services/authService";
 
 interface AuthContextType {
   isAuthenticated: boolean;
   token: string | null;
-  login: (token: string) => void;
+  userId: number | null;
+  name: string | null;
+  role: string | null;
+  isAdmin: boolean;
+  login: (auth: AuthResponse) => void;
   logout: () => void;
 }
 
@@ -18,30 +33,44 @@ interface Props {
 
 export function AuthProvider({ children }: Props) {
   const [token, setToken] = useState<string | null>(null);
+  const [userId, setUserId] = useState<number | null>(null);
+  const [name, setName] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
-    const savedToken = getToken();
-
-    if (savedToken) {
-      setToken(savedToken);
-    }
+    setToken(getToken());
+    setUserId(getUserId());
+    setName(getUserName());
+    setRole(getRole());
   }, []);
 
-  const login = (jwt: string) => {
-    saveToken(jwt);
-    setToken(jwt);
+  const login = (auth: AuthResponse) => {
+    saveAuth(auth);
+
+    setToken(auth.token);
+    setUserId(auth.userId);
+    setName(auth.name);
+    setRole(auth.role);
   };
 
   const logout = () => {
     logoutService();
+
     setToken(null);
+    setUserId(null);
+    setName(null);
+    setRole(null);
   };
 
   return (
     <AuthContext.Provider
       value={{
         token,
+        userId,
+        name,
+        role,
         isAuthenticated: !!token,
+        isAdmin: role === "ADMIN",
         login,
         logout,
       }}

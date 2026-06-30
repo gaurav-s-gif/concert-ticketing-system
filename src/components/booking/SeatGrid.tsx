@@ -25,18 +25,32 @@ export default function SeatGrid({
     return rows;
   }, {});
 
+  // Sort seats inside each row
+  Object.values(groupedSeats).forEach((rowSeats) => {
+    rowSeats.sort((a, b) => {
+      const seatA = Number(a.seatNumber.slice(1));
+      const seatB = Number(b.seatNumber.slice(1));
+
+      return seatA - seatB;
+    });
+  });
+
+  // Sort rows alphabetically
+  const sortedRows = Object.entries(groupedSeats).sort(([a], [b]) =>
+    a.localeCompare(b)
+  );
+
   return (
     <div className="space-y-8">
 
-      {Object.entries(groupedSeats).map(([row, rowSeats]) => (
+      {sortedRows.map(([row, rowSeats]) => (
 
         <div
           key={row}
-          className="flex items-center justify-center gap-6"
+          className="flex items-center justify-center gap-8"
         >
-
           {/* Row Label */}
-          <div className="w-8 text-center text-lg font-bold text-purple-400">
+          <div className="w-10 text-center text-xl font-bold text-purple-400">
             {row}
           </div>
 

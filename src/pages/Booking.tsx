@@ -5,6 +5,7 @@ import SeatGrid from "../components/booking/SeatGrid";
 import BookingSummary from "../components/booking/BookingSummary";
 
 import { useSeats } from "../hooks/useSeats";
+import { useConcert } from "../hooks/useConcert";
 
 import type { Seat } from "../types/seat";
 
@@ -16,6 +17,7 @@ export default function Booking() {
   const concertId = Number(searchParams.get("concertId"));
 
   const { seats, loading, error } = useSeats(concertId);
+  const { concert } = useConcert(concertId);
 
   const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
 
@@ -31,12 +33,13 @@ export default function Booking() {
     });
   };
 
-  const total = useMemo(() => {
-    return selectedSeats.reduce(
-      (sum, seat) => sum + seat.price,
-      0
-    );
+  const subtotal = useMemo(() => {
+    return selectedSeats.reduce((sum, seat) => sum + seat.price, 0);
   }, [selectedSeats]);
+
+  const bookingFee = selectedSeats.length > 0 ? 150 : 0;
+  const gst = Math.round((subtotal + bookingFee) * 0.18);
+  const total = subtotal + bookingFee + gst;
 
   if (loading) {
     return (
@@ -59,9 +62,74 @@ export default function Booking() {
 
       <div className="mx-auto max-w-7xl">
 
-        <h1 className="mb-10 text-center text-4xl font-bold">
-          Select Your Seats
-        </h1>
+        {/* Concert Header */}
+
+        {concert && (
+          <div className="mb-10 overflow-hidden rounded-3xl border border-slate-700 bg-slate-900 shadow-xl">
+
+            {concert.bannerImage && (
+              <img
+                src={concert.bannerImage}
+                alt={concert.title}
+                className="h-72 w-full object-cover"
+              />
+            )}
+
+            <div className="space-y-4 p-8">
+
+              <div className="flex flex-wrap items-center justify-between gap-6">
+
+                <div>
+
+                  <h1 className="text-4xl font-bold">
+                    {concert.title}
+                  </h1>
+
+                  <p className="mt-2 text-lg text-purple-300">
+                    {concert.artistName}
+                  </p>
+
+                </div>
+
+                <div className="rounded-xl bg-purple-600 px-5 py-3 text-center">
+
+                  <p className="text-sm uppercase tracking-widest">
+                    Starting From
+                  </p>
+
+                  <p className="text-2xl font-bold">
+                    ₹{concert.basePrice}
+                  </p>
+
+                </div>
+
+              </div>
+
+              <div className="flex flex-wrap gap-6 text-slate-300">
+
+                <span>
+                  📍 {concert.venueName}, {concert.city}
+                </span>
+
+                <span>
+                  📅{" "}
+                  {new Date(concert.dateTime).toLocaleDateString()}
+                </span>
+
+                <span>
+                  🕒{" "}
+                  {new Date(concert.dateTime).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+
+              </div>
+
+            </div>
+
+          </div>
+        )}
 
         {/* Stage */}
 
@@ -85,7 +153,9 @@ export default function Booking() {
               toggleSeat={toggleSeat}
             />
 
-            <div className="mt-10 flex justify-center gap-8">
+            {/* Legend */}
+
+            <div className="mt-10 flex flex-wrap justify-center gap-8">
 
               <div className="flex items-center gap-2">
                 <div className="h-5 w-5 rounded bg-green-500"></div>
@@ -106,27 +176,27 @@ export default function Booking() {
 
           </div>
 
-          {/* Summary */}
+          {/* Booking Summary */}
 
           <div>
 
-            <BookingSummary
-              seats={selectedSeats}
-            />
+            <BookingSummary seats={selectedSeats} />
 
             <button
               disabled={selectedSeats.length === 0}
               onClick={() =>
-                navigate("/payment")
+                navigate("/payment", {
+                  state: {
+                    concert,
+                    selectedSeats,
+                    total,
+                  },
+                })
               }
               className="mt-6 w-full rounded-xl bg-purple-600 py-4 text-lg font-semibold transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Continue
+              Continue to Payment →
             </button>
-
-            <p className="mt-4 text-center text-lg font-semibold text-green-400">
-              Total: ₹{total}
-            </p>
 
           </div>
 

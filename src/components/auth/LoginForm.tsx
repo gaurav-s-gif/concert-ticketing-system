@@ -20,6 +20,7 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
+
   const { login } = useAuth();
 
   const {
@@ -34,16 +35,23 @@ export default function LoginForm() {
     try {
       const response = await loginService(data);
 
-      // Update AuthContext (also saves token)
-      login(response.token);
+      // Save token + userId + name + role
+      login(response);
 
-      toast.success("Login successful!");
+      toast.success(`Welcome back, ${response.name}!`);
 
-      navigate("/");
+      if (response.role === "ADMIN") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (error: any) {
       console.error(error);
 
-      if (error.response?.status === 401) {
+      if (
+        error.response?.status === 401 ||
+        error.response?.status === 403
+      ) {
         toast.error("Invalid email or password");
       } else {
         toast.error("Unable to login. Please try again.");
@@ -54,7 +62,7 @@ export default function LoginForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-5 w-full max-w-md mx-auto"
+      className="mx-auto w-full max-w-md space-y-5"
     >
       {/* Email */}
       <div>
@@ -62,11 +70,11 @@ export default function LoginForm() {
           type="email"
           placeholder="Email"
           {...register("email")}
-          className="w-full rounded-lg border p-3 outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-lg border p-3 outline-none transition focus:ring-2 focus:ring-blue-500"
         />
 
         {errors.email && (
-          <p className="text-red-500 text-sm mt-1">
+          <p className="mt-1 text-sm text-red-500">
             {errors.email.message}
           </p>
         )}
@@ -78,7 +86,7 @@ export default function LoginForm() {
           type={showPassword ? "text" : "password"}
           placeholder="Password"
           {...register("password")}
-          className="w-full rounded-lg border p-3 pr-12 outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-lg border p-3 pr-12 outline-none transition focus:ring-2 focus:ring-blue-500"
         />
 
         <button
@@ -86,21 +94,25 @@ export default function LoginForm() {
           onClick={() => setShowPassword((prev) => !prev)}
           className="absolute right-3 top-1/2 -translate-y-1/2"
         >
-          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          {showPassword ? (
+            <EyeOff size={20} />
+          ) : (
+            <Eye size={20} />
+          )}
         </button>
 
         {errors.password && (
-          <p className="text-red-500 text-sm mt-1">
+          <p className="mt-1 text-sm text-red-500">
             {errors.password.message}
           </p>
         )}
       </div>
 
-      {/* Submit Button */}
+      {/* Submit */}
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full rounded-lg bg-blue-600 py-3 text-white font-medium hover:bg-blue-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full rounded-lg bg-blue-600 py-3 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isSubmitting ? (
           <Loader2 className="mx-auto animate-spin" />

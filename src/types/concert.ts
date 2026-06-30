@@ -8,4 +8,8 @@ export interface Concert {
 
   venueId: number;
   venueName: string;
+  city: string;
+
+  posterImage: string;
+  bannerImage: string;
 }
