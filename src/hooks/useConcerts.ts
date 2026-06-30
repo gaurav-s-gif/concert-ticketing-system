@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { Concert } from "../types/concert";
 import { getAllConcerts } from "../services/concertService";
+import type { Concert } from "../types/concert";
 
 export function useConcerts() {
   const [concerts, setConcerts] = useState<Concert[]>([]);
@@ -8,19 +8,18 @@ export function useConcerts() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    async function loadConcerts() {
+    const fetchConcerts = async () => {
       try {
         const data = await getAllConcerts();
         setConcerts(data);
-      } catch (err) {
-        console.error(err);
+      } catch {
         setError("Unable to load concerts.");
       } finally {
         setLoading(false);
       }
-    }
+    };
 
-    loadConcerts();
+    fetchConcerts();
   }, []);
 
   return {

@@ -1,6 +1,5 @@
 import ConcertCard from "./ConcertCard";
 import { useConcerts } from "../../hooks/useConcerts";
-
 const ConcertSection = () => {
 
   const { concerts, loading, error } = useConcerts();

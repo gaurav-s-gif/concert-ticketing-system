@@ -1,41 +1,70 @@
+import { Link } from "react-router-dom";
 import type { Concert } from "../../types/concert";
 
-interface Props {
+interface ConcertCardProps {
   concert: Concert;
 }
 
-const ConcertCard = ({ concert }: Props) => {
+export default function ConcertCard({ concert }: ConcertCardProps) {
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 transition hover:border-purple-500 hover:-translate-y-1">
+    <Link to={`/concert/${concert.id}`}>
+      <div className="group overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 transition-all duration-300 hover:-translate-y-2 hover:border-purple-500 hover:shadow-xl hover:shadow-purple-900/20">
 
-      <h2 className="text-2xl font-bold">
-        {concert.title}
-      </h2>
+        {/* Placeholder Image */}
+        <div className="flex h-52 items-center justify-center bg-gradient-to-br from-purple-700 via-purple-600 to-indigo-700">
+          <h2 className="px-4 text-center text-3xl font-bold text-white">
+            {concert.title}
+          </h2>
+        </div>
 
-      <p className="mt-2 text-purple-400">
-        {concert.artistName}
-      </p>
+        <div className="space-y-4 p-6">
 
-      <p className="mt-4 text-slate-400">
-        {concert.description}
-      </p>
+          <div>
+            <h3 className="text-2xl font-bold text-white">
+              {concert.title}
+            </h3>
 
-      <div className="mt-6 flex justify-between text-sm text-slate-300">
-        <span>
-          {new Date(concert.dateTime).toLocaleDateString()}
-        </span>
+            <p className="mt-1 text-purple-400">
+              {concert.artistName}
+            </p>
+          </div>
 
-        <span className="font-bold text-white">
-          ₹{concert.basePrice}
-        </span>
+          <p className="line-clamp-3 text-sm text-slate-400">
+            {concert.description}
+          </p>
+
+          <div className="space-y-2 text-sm">
+
+            <div className="flex justify-between">
+              <span className="text-slate-400">
+                Date
+              </span>
+
+              <span className="text-white">
+                {new Date(concert.dateTime).toLocaleString()}
+              </span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="text-slate-400">
+                Starting From
+              </span>
+
+              <span className="font-semibold text-green-400">
+                ₹{concert.basePrice}
+              </span>
+            </div>
+
+          </div>
+
+          <button
+            className="w-full rounded-xl bg-purple-600 py-3 font-semibold text-white transition hover:bg-purple-700"
+          >
+            View Details
+          </button>
+
+        </div>
       </div>
-
-      <button className="mt-6 w-full rounded-xl bg-purple-600 py-3 font-semibold transition hover:bg-purple-700">
-        Book Now
-      </button>
-
-    </div>
+    </Link>
   );
-};
-
-export default ConcertCard;
+}

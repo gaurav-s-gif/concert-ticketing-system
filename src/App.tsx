@@ -8,16 +8,45 @@ import ConcertDetails from "./pages/ConcertDetails";
 import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
 
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+
       <Route path="/login" element={<Login />} />
+
       <Route path="/register" element={<Register />} />
-      <Route path="/booking" element={<Booking />} />
+
+      <Route
+        path="/booking"
+        element={
+          <ProtectedRoute>
+            <Booking />
+          </ProtectedRoute>
+        }
+      />
+
       <Route path="/concert/:id" element={<ConcertDetails />} />
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/admin" element={<AdminDashboard />} />
+
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }

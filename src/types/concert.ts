@@ -5,4 +5,7 @@ export interface Concert {
   description: string;
   dateTime: string;
   basePrice: number;
+
+  venueId: number;
+  venueName: string;
 }
